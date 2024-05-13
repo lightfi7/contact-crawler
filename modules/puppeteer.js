@@ -10,8 +10,8 @@ const apiKey = process.env.ANTI_CPATCHA_KEY;
 const pluginUrl = "https://antcpt.com/anticaptcha-plugin.zip";
 
 const initBrowser = async () => {
-  await downloadAndExtractPlugin();
-  await setApiKeyInConfig();
+  // await downloadAndExtractPlugin();
+  // await setApiKeyInConfig();
 
   const browser = await puppeteer.launch({
     headless: false,
