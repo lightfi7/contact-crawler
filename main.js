@@ -4,12 +4,14 @@ const { initBrowser, fetchPageHtml } = require("./modules/puppeteer");
 const { makeDBConnection, makeCollection, makeSchema } = require("./database");
 const { makeSocketConnection } = require("./modules/socket");
 const gmapSchema = require("./database/schemas/gmap.schema");
+const websiteSchema = require("./database/schemas/website.schema");
 const contactSchema = require("./database/schemas/contact.schema");
 const { extractDataFromHtml } = require("./modules/crawler");
 const { resolve } = require("path");
 
 let started = false;
 let Gmap = null,
+  Website = null,
   Contact = null;
 
 const myEmitter = new events.EventEmitter();
@@ -34,22 +36,19 @@ const startWork = () =>
         socket?.emit("message", {
           message: ">",
         });
-        let urls = await Gmap.find(
-          { "result.website": { $exists: true } },
-          { "result.website": 1 }
-        )
+        let websites = await Website.find({ level: 2 }, { url: 1 })
           .skip(n * 1000)
           .limit((n + 1) * 1000);
-        if (urls.length === 0) {
+        if (websites.length === 0) {
           break;
         }
-        for (let i = 0; i < urls.length; i++) {
-          let url = urls[i].result.website;
+        for (let i = 0; i < websites.length; i++) {
+          let url = websites[i].url;
           let html = await fetchPageHtml(page, url);
           let result = extractDataFromHtml(html);
           socket?.emit("message", { message: `u: ${url}` });
           socket?.emit("message", {
-            message: `emails: ${result.emails.length} phones: ${result.phoneNumbers.length} socials: ${result.socialLinks.length}`,
+            message: `emails: ${result.email_addresses.length} phones: ${result.phone_numbers.length} socials: ${result.social_links.length}`,
           });
           // await Contact.updateOne(
           //   { url },
@@ -88,6 +87,7 @@ const startWork = () =>
     });
 
     Gmap = makeCollection("gmaps", makeSchema(gmapSchema));
+    Website = makeCollection("websites", makeSchema(websiteSchema));
     Contact = makeCollection("Contact", makeSchema(contactSchema));
 
     (async () => {
