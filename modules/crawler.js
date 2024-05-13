@@ -5,7 +5,7 @@ const extractDataFromHtml = (html) => {
     const $ = cheerio.load(html, { decodeEntities: false });
     const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
     const phonePattern =
-      /\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}/g;
+      /\+(?:1[-.\s]?)?\(?[2-9]\d{2}\)?[-.\s]?\d{3}[-.\s]?\d{4}/;
     const socialPattern =
       /(?:https?:\/\/)?(?:www\.)?(?:facebook|fb|twitter|linkedin|instagram|youtube)\.com\/(?:[\w\-\.]+\/?)+/g;
     const extractedData = {
