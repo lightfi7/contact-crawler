@@ -32,15 +32,15 @@ const startWork = () =>
     try {
       let n = 0;
       while (started) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // await new Promise((resolve) => setTimeout(resolve, 1000));
         socket?.emit("message", {
           message: ">",
         });
-        let websites = await Website.find({ level: 2 }, { url: 1 })
+        let websites = await Website.find({}, { url: 1 })
           .skip(n * 1000)
           .limit((n + 1) * 1000);
         if (websites.length === 0) {
-          break;
+          n = 0;
         }
         for (let i = 0; i < websites.length; i++) {
           let url = websites[i].url;
@@ -50,17 +50,17 @@ const startWork = () =>
           socket?.emit("message", {
             message: `emails: ${result.email_addresses.length} phones: ${result.phone_numbers.length} socials: ${result.social_links.length}`,
           });
-          // await Contact.updateOne(
-          //   { url },
-          //   {
-          //     $set: {
-          //       result,
-          //     },
-          //   },
-          //   {
-          //     upsert: true,
-          //   }
-          // );
+          await Contact.updateOne(
+            { url },
+            {
+              $set: {
+                result,
+              },
+            },
+            {
+              upsert: true,
+            }
+          );
         }
         n++;
       }
